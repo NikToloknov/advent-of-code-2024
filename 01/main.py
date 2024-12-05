@@ -1,6 +1,7 @@
 from heapq import heappop, heappush
 
 from typing import Iterator
+from collections import Counter
 
 
 def read_file(path: str = "input.txt") -> Iterator[tuple[int, int]]:
