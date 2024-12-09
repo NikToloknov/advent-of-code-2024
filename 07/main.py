@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import Iterator, Optional
 
@@ -7,6 +8,7 @@ class Node:
     value: int
     level: int
     left: Optional["Node"] = None
+    middle: Optional["Node"] = None
     right: Optional["Node"] = None
 
 
@@ -37,30 +39,33 @@ def read_file(path: str) -> Iterator[Values]:
         yield from [Values.create(line) for line in file.readlines()]
 
 
+def concat(a: int, b: int) -> int:
+    return int(10 ** (int(math.log(b, 10)) + 1) * a + b)
+
+
 def validate_calibration(values: Values) -> bool:
-    stack: list[Node] = [
-        Node(
-            value=values.numbers[0],
-            level=0,
-        ),
-    ]
+    stack: list[Node] = [Node(value=values.numbers[0], level=0)]
 
     while len(stack) > 0:
-        node = stack.pop()
-
-        if node.value == values.value:
+        if (node := stack.pop()).value == values.value:
             return True
 
-        if node.level + 1 == len(values.numbers):
+        if (level := node.level + 1) == len(values.numbers):
             continue
 
-        if (value := node.value * values.numbers[node.level + 1]) <= values.value:
-            node.right = Node(value=value, level=node.level + 1)
+        number = values.numbers[level]
+
+        if (value := node.value * number) <= values.value:
+            node.right = Node(value=value, level=level)
             stack.append(node.right)
 
-        if (value := node.value + values.numbers[node.level + 1]) <= values.value:
-            node.left = Node(value=value, level=node.level + 1)
+        if (value := node.value + number) <= values.value:
+            node.left = Node(value=value, level=level)
             stack.append(node.left)
+
+        if (value := concat(node.value, number)) <= values.value:
+            node.middle = Node(value=value, level=level)
+            stack.append(node.middle)
 
     return False
 
