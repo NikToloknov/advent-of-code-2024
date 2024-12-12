@@ -13,11 +13,6 @@ class Node:
 
 
 @dataclass
-class Tree:
-    root: Node
-
-
-@dataclass
 class Values:
     value: int
     numbers: tuple[int, ...]
@@ -47,7 +42,9 @@ def validate_calibration(values: Values) -> bool:
     stack: list[Node] = [Node(value=values.numbers[0], level=0)]
 
     while len(stack) > 0:
-        if (node := stack.pop()).value == values.value:
+        if (node := stack.pop()).value == values.value and node.level + 1 == len(
+            values.numbers
+        ):
             return True
 
         if (level := node.level + 1) == len(values.numbers):
